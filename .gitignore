@@ -1,15 +1,16 @@
-venv/
-# Virtual environment — never push this to GitHub
+# Virtual environment
 venv/
 
-# Python cache files — automatically generated, not needed
+# Python cache files
 __pycache__/
 *.pyc
 *.pyo
 
-# Environment variables file — contains secrets, never push
+# Environment variables / secrets
 .env
 
 # Mac system file
 .DS_Store
 
+# Personal notes
+project-notes.txt
