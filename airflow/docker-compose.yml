@@ -1,0 +1,17 @@
+services:
+  airflow:
+    image: apache/airflow:2.8.1
+    env_file:
+      - .env
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - _PIP_ADDITIONAL_REQUIREMENTS=pandas faker
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - airflow-db:/opt/airflow
+    ports:
+      - "8080:8080"
+    command: standalone
+
+volumes:
+  airflow-db:

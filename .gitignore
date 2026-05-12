@@ -8,9 +8,11 @@ __pycache__/
 
 # Environment variables / secrets
 .env
+.env1
 
 # Mac system file
 .DS_Store
 
 # Personal notes
 project-notes.txt
+.env
