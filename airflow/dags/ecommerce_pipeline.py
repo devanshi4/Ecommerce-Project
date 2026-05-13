@@ -18,7 +18,6 @@ random.seed(42)
 
 # ── Default Arguments ─────────────────────────────────────────────────────────
 # These apply to every task in the DAG
-# retries=1 means: if a task fails, wait 5 minutes and try once more
 # This handles temporary issues like network blips
 
 default_args = {
@@ -44,7 +43,6 @@ S3_BUCKET = os.environ.get("S3_BUCKET", "ecommerce-data-platform-dp")
 
 # ── Task Functions ────────────────────────────────────────────────────────────
 # Each function below becomes one task in the pipeline
-# They're just regular Python functions — Airflow calls them on schedule
 
 def log_pipeline_start(**context):
     """Task 1 — Log that pipeline has started"""
@@ -250,7 +248,6 @@ def log_pipeline_complete(**context):
 
 
 # ── Define The DAG ────────────────────────────────────────────────────────────
-# Everything above was just Python functions.
 # This section creates the actual Airflow DAG and connects the tasks.
 
 with DAG(
@@ -296,7 +293,6 @@ with DAG(
         python_callable=log_pipeline_complete,
     )
 
-    # Define the order — this is the pipeline
-    # >> means "then run next"
+   
     # If any task fails, everything after it stops
     t1 >> t2 >> t3 >> t4 >> t5 >> t6

@@ -6,7 +6,6 @@ from faker import Faker
 
 kinesis_client = boto3.client("kinesis", region_name="us-east-1")
 fake = Faker()
-
 EVENT_TYPES = ["page_view", "product_view", "add_to_cart", "purchase"]
 USER_IDS = ["USR-001", "USR-002", "USR-003", "USR-004", "USR-005"]
 

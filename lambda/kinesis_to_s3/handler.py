@@ -7,11 +7,6 @@ from datetime import datetime
 # boto3 creates our connection to S3
 # Just like in the order generator, boto3 is the bridge to AWS
 s3_client = boto3.client("s3")
-
-# os.environ reads environment variables
-# Environment variables are settings we pass to Lambda from outside the code
-# This way we don't hardcode the bucket name inside the function
-# (same reason we created config.py — one place to change things)
 S3_BUCKET = os.environ["S3_BUCKET"]
 
 

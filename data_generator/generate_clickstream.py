@@ -37,21 +37,15 @@ EVENT_TYPES = [
 # page_view is most common, purchase is rarest.
 # This reflects real e-commerce funnel behaviour —
 # thousands of views, fewer adds to cart, even fewer purchases.
-# This is called a "conversion funnel" and it's something
-# data engineers build reports on constantly.
 EVENT_WEIGHTS = [30, 25, 20, 5, 12, 8]
-
 DEVICES = ["desktop", "mobile", "tablet"]
 BROWSERS = ["Chrome", "Safari", "Firefox", "Edge"]
 REFERRERS = [None, "google.com", "facebook.com", "instagram.com", "email", "direct"]
 
 # ── Connect to Kinesis ────────────────────────────────────────────────────────
 
-# This creates a Kinesis client — the object we use to send data to Kinesis.
-# Just like boto3.client("s3") talked to S3, boto3.client("kinesis") talks to Kinesis.
-# It automatically uses the credentials from your `aws configure` setup.
+# This creates a Kinesis client 
 kinesis_client = boto3.client("kinesis", region_name=config.AWS_REGION)
-
 
 # ── Generate One Event ────────────────────────────────────────────────────────
 
@@ -119,8 +113,6 @@ def send_to_kinesis(event: dict):
     We use session_id as the partition key.
     This means all events from the same user session go to the same shard,
     preserving the order of events within a session.
-    Why does order matter? If "add_to_cart" arrives before "product_view"
-    in your analysis, your session analysis will be wrong.
     """
     kinesis_client.put_record(
         StreamName=config.KINESIS_STREAM,
@@ -143,7 +135,6 @@ def stream_events(duration_seconds: int = 120):
     Runs for duration_seconds then stops.
     
     Default is 2 minutes — enough to generate meaningful data
-    without running your AWS bill up.
     """
     print(f"\n🚀 Starting clickstream stream...")
     print(f"   Sending to: {config.KINESIS_STREAM}")
@@ -156,7 +147,6 @@ def stream_events(duration_seconds: int = 120):
 
     # active_sessions simulates multiple users browsing at the same time
     # Key = session_id, Value = user_id
-    # Think of it as: right now, these N users have open browser tabs on the site
     active_sessions = {}
 
     while time.time() - start_time < duration_seconds:
@@ -191,7 +181,6 @@ def stream_events(duration_seconds: int = 120):
 
         except Exception as e:
             # We catch errors per-event so one failure doesn't crash everything
-            # In production, failed events would go to a dead letter queue
             print(f"   ❌ Failed to send event: {e}")
 
         # Occasionally close a session (user leaves the site)

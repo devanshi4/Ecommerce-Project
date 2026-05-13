@@ -15,4 +15,6 @@ __pycache__/
 
 # Personal notes
 project-notes.txt
+test_kinesis.py
+
 .env

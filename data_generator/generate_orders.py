@@ -8,25 +8,17 @@ import random      # for generating random choices (products, users, etc.)
 import io          # lets us write files to memory instead of disk
 from datetime import datetime, timedelta   # for working with dates and times
 from faker import Faker    # generates realistic fake data (names, countries, etc.)
-
-# Import our central config — this is why we built config.py first
 import config
 
 # ── Setup ─────────────────────────────────────────────────────────────────────
 
 # Faker generates realistic random data
 fake = Faker()
-
-# random.seed(42) means: every time you run this script, the "random" choices
-# will be the same sequence. This makes your data reproducible — important for
-# testing. If you run it twice, you get the same users, same products, same
-# patterns. Remove the seed if you want truly random data each run.
 random.seed(42)
 
 
 # ── Build a Product Catalog ───────────────────────────────────────────────────
-# Real e-commerce stores have a product database. We simulate one here.
-# We build it once at the top so every order can reference the same products.
+
 
 CATEGORIES = ["Electronics", "Clothing", "Books", "Home & Garden", "Sports", "Beauty"]
 
@@ -84,9 +76,6 @@ def generate_single_order(order_id: int, order_timestamp: datetime) -> dict:
         # Order identifiers
         "order_id": f"ORD-{order_id:08d}",   # e.g. ORD-00000001
         "user_id": random.choice(USER_IDS),
-        
-        # Product details — in a real pipeline, you'd join with a products table
-        # but for Bronze layer we include them directly for simplicity
         "product_id": product["product_id"],
         "product_name": product["product_name"],
         "category": product["category"],
@@ -106,10 +95,6 @@ def generate_single_order(order_id: int, order_timestamp: datetime) -> dict:
         # Timestamps
         # order_timestamp = when the customer placed the order
         "order_timestamp": order_timestamp.isoformat(),
-        
-        # ingestion_timestamp = when this file was generated and uploaded
-        # In real pipelines, tracking this separately helps you debug
-        # "why did this order arrive late?" type questions
         "ingestion_timestamp": datetime.utcnow().isoformat(),
     }
 
@@ -153,7 +138,7 @@ def generate_and_upload_orders(run_date: datetime = None, num_orders: int = conf
 
     # ── Write to S3 ───────────────────────────────────────────────────────────
     # We use io.StringIO() to write the CSV to memory (RAM) instead of saving
-    # a file on disk first. This is faster and cleaner — no temp files to clean up.
+    # a file on disk first. 
     csv_buffer = io.StringIO()
     df.to_csv(csv_buffer, index=False)  # index=False means don't add a row number column
 
@@ -184,9 +169,6 @@ def backfill_historical_orders(days_back: int = 7):
     we want enough historical data to run meaningful queries like
     "revenue by day over the past week." One day of data isn't interesting.
     
-    In real companies this is called a 'backfill' — loading historical data
-    into a new pipeline that didn't exist when that data was created.
-    Backfills are extremely common whenever a new pipeline is built.
     """
     print(f"🕐 Starting backfill for the past {days_back} days...")
     
@@ -199,7 +181,6 @@ def backfill_historical_orders(days_back: int = 7):
 
 # ── Entry Point ───────────────────────────────────────────────────────────────
 # This block only runs when you execute this file directly (python generate_orders.py)
-# It does NOT run when another file imports this one — that's what `if __name__` means
 
 if __name__ == "__main__":
     # Step 1: Generate 7 days of historical data
