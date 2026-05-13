@@ -11,6 +11,7 @@ Simulates a real e-commerce data platform that:
 - Runs the entire pipeline on a daily schedule without manual intervention
 
 ## Architecture
+```
 Data Sources
 ├── Clickstream Events → Kinesis Data Stream (real-time)
 └── Order Data        → S3 Bronze Layer (batch)
@@ -25,9 +26,10 @@ Catalog + Query Layer
 └── Amazon Athena (SQL queries on S3)
 Orchestration
 └── Apache Airflow DAG (scheduled daily at 6am)
+```
 
 ## Tech Stack
-
+```
 | Layer | Technology |
 |---|---|
 | Cloud Platform | AWS |
@@ -40,6 +42,7 @@ Orchestration
 | Orchestration | Apache Airflow |
 | Permissions | AWS IAM |
 | Language | Python |
+```
 
 ## Data Architecture — Medallion Pattern
 - **Bronze** — Raw data exactly as ingested. Never modified. Safety net for reprocessing.
@@ -80,6 +83,7 @@ Orchestration
 - **Batch vs streaming** — both patterns implemented in one project
 
 ## Project Structure
+```
 ecommerce-data-platform/
 ├── data_generator/
 │   ├── config.py
@@ -97,6 +101,7 @@ ecommerce-data-platform/
 │   │   └── ecommerce_pipeline.py     # Airflow DAG
 │   └── docker-compose.yml
 └── README.md
+```
 
 ## How to Run
 1. Configure AWS credentials: `aws configure`
