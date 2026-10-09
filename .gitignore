@@ -18,3 +18,7 @@ project-notes.txt
 test_kinesis.py
 
 .env
+
+# Airflow runtime files (the stack uses a Docker volume for its home)
+airflow/airflow-data/
+airflow/logs/

@@ -10,7 +10,7 @@
         "kinesis:DescribeStream",
         "kinesis:ListShards"
       ],
-      "Resource": "arn:aws:kinesis:us-east-1:058264493049:stream/ecommerce-clickstream"
+      "Resource": "arn:aws:kinesis:us-east-1:<ACCOUNT_ID>:stream/ecommerce-clickstream"
     },
     {
       "Sid": "WriteToS3Bronze",

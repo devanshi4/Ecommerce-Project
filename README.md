@@ -62,9 +62,17 @@ Orchestration
 1. Airflow DAG triggers daily at 6am UTC
 2. Generates 200 realistic orders and uploads to S3 (partitioned by date)
 3. Validates data exists before processing
-4. PySpark cleans Bronze → writes Silver (Parquet)
-5. PySpark aggregates Silver → writes 3 Gold tables
+4. Cleans the day's Bronze orders → writes Silver (pandas, CSV)
+5. Aggregates Silver → writes 3 daily Gold tables (CSV)
 6. Pipeline completes with full audit log
+
+### Spark Path (full history, orders + clickstream)
+`jobs/medallion_job.py` runs the full Bronze → Silver → Gold build with PySpark over all order and clickstream data and writes Parquet:
+1. Casts types and adds date/hour columns
+2. Applies data-quality filters (missing keys, non-positive prices or quantities) and fails the run if a layer comes out empty or more than 5% of rows are dropped
+3. Joins clickstream to orders on `user_id` and builds 6 Gold tables
+
+It runs with `spark-submit` locally, on EMR, or as a Glue job. `notebooks/phase3_transformations.ipynb` is the exploratory walkthrough of the same logic.
 
 ## Gold Tables Built
 - `daily_revenue` — total revenue, order count, average order value per day
@@ -72,6 +80,7 @@ Orchestration
 - `orders_by_status` — completed vs cancelled vs pending breakdown
 - `device_conversion` — mobile vs desktop purchase conversion rates
 - `user_journey` — sessions, events, and spend per user
+- `category_funnel` — interactions vs completed orders per category
 
 ## Key Engineering Concepts Demonstrated
 - **Medallion Architecture** — Bronze/Silver/Gold data lake pattern
@@ -94,8 +103,10 @@ ecommerce-data-platform/
 │   │   └── handler.py          # Lambda function
 │   ├── trust-policy.json
 │   └── lambda-permissions.json
+├── jobs/
+│   └── medallion_job.py        # PySpark Bronze→Silver→Gold (spark-submit)
 ├── notebooks/
-│   └── phase3_transformations.ipynb  # PySpark Bronze→Silver→Gold
+│   └── phase3_transformations.ipynb  # Exploratory walkthrough of the Spark logic
 ├── airflow/
 │   ├── dags/
 │   │   └── ecommerce_pipeline.py     # Airflow DAG
@@ -111,3 +122,10 @@ ecommerce-data-platform/
 5. Run clickstream generator: `python data_generator/generate_clickstream.py`
 6. Start Airflow: `docker-compose up -d` from `/airflow`
 7. Trigger DAG from Airflow UI at `localhost:8080`
+8. Run the Spark build:
+   ```bash
+   # local copy of the bucket layout (bronze/orders/, bronze/clickstream/)
+   spark-submit jobs/medallion_job.py --base-path ./data
+   # or straight from S3
+   spark-submit --packages org.apache.hadoop:hadoop-aws:3.3.4 jobs/medallion_job.py --base-path s3a://<your-bucket>
+   ```
